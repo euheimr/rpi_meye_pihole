@@ -11,8 +11,10 @@
 #		https://github.com/jacobbetz
 #	
 # 	Revision history:
+#	09/10/2018	Added motioneye information 
 # 	09/10/2018 	Added required packages for motion and motioneye.
-#				Reformatted script to use functions for -ALL- installs.
+#				Reformatted script to use functions for -ALL- install procedures.
+#				
 # 	09/09/2018 	Created the script
 #
 #
@@ -27,10 +29,17 @@
 #
 #	MOTION PROJECT:
 #		https://motion-project.github.io/
-#		Reference material: https://motion-project.github.io/motion_build.html
+#		Ref: https://motion-project.github.io/motion_build.html
 #
+#	MOTIONEYE:
+#		https://github.com/ccrisan/motioneye/wiki/Installation
+#		
+#		Ref: https://github.com/ccrisan/motioneye/wiki/Install-On-Raspbian
 #
-#
+# -----------------------------------------------------------------------------------------
+
+
+
 # -----------------------------------------------------------------------------------------
 # 	SECTION 0 - TODO
 # -----------------------------------------------------------------------------------------
@@ -41,36 +50,53 @@
 #
 #
 # -----------------------------------------------------------------------------------------
+
+
+
+# -----------------------------------------------------------------------------------------
 # 	FUNCTIONS 
 # -----------------------------------------------------------------------------------------
 
 #Install everything listed in this script.
-install_all(){
-	sudo -i
-	install_pihole();
-	install_motion();
-	install_motion_options();
-}
+
+
 
 install_pihole(){
-	
-	#start the config and install.
-	#see abo
+	#NOTE: EXTERNAL SCRIPT
 	curl -sSL https://install.pi-hole.net | bash 
-	
 }
 # -----------------------------------------------------------------------------------------
 #	SECTION 1 - MOTION SETUP
 # -----------------------------------------------------------------------------------------
 install_motion(){
 	#motion libraries - base packages - always install these
-	sudo apt-get install autoconf automake build-essential pkgconf libtool libzip-dev libjpeg-dev git libavformat-dev libavcodec-dev libavutil-dev libswscale-dev libavdevice-dev libwebp-dev
+	sudo apt-get install autoconf automake build-essential pkgconf libtool git libzip-dev libjpeg-dev
+	cd ~ 
+	git clone https://github.com/Motion-Project/motion.git 
+	cd motion 
+	autoreconf -fiv 
 }
 # -----------------------------------------------------------------------------------------
 #	SECTION 1 - MOTION OPTIONS SETUP
 # -----------------------------------------------------------------------------------------
-install_motion_options(){
+preferred_options(){
+	#mysql
 	install_mysql();
+	#FFMpeg (Required for creating movies, using network cameras, etc.)
+	sudo apt-get install libavformat-dev libavcodec-dev libavutil-dev libswscale-dev libavdevice-dev
+
+	#PostgreSQL
+	sudo apt-get install libpq-dev
+
+	#SQLite3
+	sudo apt-get install libsqlite3-dev
+
+	#JPEG turbo
+	sudo apt-get install libjpeg-turbo8 libjpeg-turbo8-dev
+
+	#Webp Image Support
+	sudo apt-get install libwebp-dev
+
 }
 
 # -----------------------------------------------------------------------------------------
@@ -79,34 +105,37 @@ install_motion_options(){
 
 install_mysql(){
 	echo "Install MySql? ( y / n )."
-	read 
+	read ans
 	do
-	read INPUT_STRING
-	case $INPUT_STRING in 
+	case $ans in 
 		y)
 		sudo apt-get install mysql-server libmysqlclient-dev
+		;;
 		n)
+		;;
+		*)
+		echo "Invalid input."
+		break;;
 	
-
 }
 
-#
-#
-#
+install_sqlite3(){
+	echo "Install SQLite3? ( y / n )."
+	read ans
+}
+
 # -----------------------------------------------------------------------------------------
+#	INSTALL CORE OPTIONS
+#	
+#	options: 
+#	FFMpeg (Required for creating movies, using network cameras, etc.)
+#	PostgreSQL
+#	JPEG turbo
+#	Webp Image Support
 # -----------------------------------------------------------------------------------------
+###### TODO
+#
 
-sudo apt-get install pkgconf libtool libzip-dev libjpeg-dev git libavformat-dev libavcodec-dev libavutil-dev libswscale-dev libavdevice-dev libwebp-dev
-#motion libraries - FFMpeg Functionality
-#(Required for creating movies, using network cameras, etc.)
-sudo apt-get install libavformat-dev libavcodec-dev libavutil-dev libswscale-dev libavdevice-dev
-
-
-
-cd ~ 
-git clone https://github.com/Motion-Project/motion.git 
-cd motion 
-autoreconf -fiv 
 ./configure 
 make 
 make install
